@@ -67,6 +67,38 @@ namespace PC_Creator_Mod_Launcher
 			}
 
 			this.gameExecutablePathTextBox.Text = MainWindow.instance.mainConfig.gameExecutablePath;
+
+			this.UpdateSetupBepInExButtonStatus();
+
+			this.UpdateRemoveBepInExButtonStatus();
+		}
+
+		private void UpdateSetupBepInExButtonStatus()
+		{
+			this.setupBepInExButton.IsEnabled = !this.IsBepInExAlreadySetup();
+
+			if (this.setupBepInExButton.IsEnabled == true)
+			{
+				this.setupBepInExButton.Content = "Setup BepInEx";
+			}
+			else
+			{
+				this.setupBepInExButton.Content = "BepInEx has already been set up at this path.";
+			}
+		}
+
+		private void UpdateRemoveBepInExButtonStatus()
+		{
+			this.removeBepInExButton.IsEnabled = this.IsBepInExAlreadySetup();
+
+			if (this.removeBepInExButton.IsEnabled == true)
+			{
+				this.removeBepInExButton.Content = "Remove BepInEx";
+			}
+			else
+			{
+				this.removeBepInExButton.Content = "BepInEx has not yet been set up at this path.";
+			}
 		}
 
 		private void OnReturnToHomePageButtonClick(object sender, RoutedEventArgs e)
@@ -82,6 +114,10 @@ namespace PC_Creator_Mod_Launcher
 		private void OnOpenFileDialogFileOk(object sender, CancelEventArgs e)
 		{
 			this.gameExecutablePathTextBox.Text = this.openFileDialog.FileName;
+
+			this.UpdateSetupBepInExButtonStatus();
+
+			this.UpdateRemoveBepInExButtonStatus();
 		}
 
 		private void OnGameExecutablePathTextBoxTextChanged(object sender, RoutedEventArgs e)
@@ -114,7 +150,49 @@ namespace PC_Creator_Mod_Launcher
 
 		private void OnRemoveBepInExButtonClick(object sender, RoutedEventArgs e)
 		{
+			this.removeBepInExButton.IsEnabled = false;
 
+			this.removeBepInExButton.Content = "Removing BepInEx. Please wait...";
+
+			string gameExecutableParentDirectoryAbsolutePath = new FileInfo(
+				MainWindow.instance.mainConfig.gameExecutablePath
+			).Directory.FullName;
+
+			string bepInExFolderAbsolutePath = Path.Combine(gameExecutableParentDirectoryAbsolutePath, "BepInEx");
+
+			string bepInExChangelogTxtFileAbsolutePath = Path.Combine(gameExecutableParentDirectoryAbsolutePath, "changelog.txt");
+
+			string bepInExDoorstopConfigIniFileAbsolutePath = Path.Combine(gameExecutableParentDirectoryAbsolutePath, "doorstop_config.ini");
+
+			string bepInExWinHttpDllFileAbsolutePath = Path.Combine(gameExecutableParentDirectoryAbsolutePath, "winhttp.dll");
+
+			if (Directory.Exists(bepInExFolderAbsolutePath) == true)
+			{
+				Directory.Delete(bepInExFolderAbsolutePath, true);
+			}
+
+			if (File.Exists(bepInExChangelogTxtFileAbsolutePath) == true)
+			{
+				File.Delete(bepInExChangelogTxtFileAbsolutePath);
+			}
+
+			if (File.Exists(bepInExDoorstopConfigIniFileAbsolutePath) == true)
+			{
+				File.Delete(bepInExDoorstopConfigIniFileAbsolutePath);
+			}
+
+			if (File.Exists(bepInExWinHttpDllFileAbsolutePath) == true)
+			{
+				File.Delete(bepInExWinHttpDllFileAbsolutePath);
+			}
+
+			this.removeBepInExButton.IsEnabled = true;
+
+			this.removeBepInExButton.Content = "Remove BepInEx";
+
+			this.UpdateSetupBepInExButtonStatus();
+
+			this.UpdateRemoveBepInExButtonStatus();
 		}
 
 		private void OnWebClientDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
@@ -173,6 +251,10 @@ namespace PC_Creator_Mod_Launcher
 			this.setupBepInExButton.Content = "Setup BepInEx";
 
 			this.removeBepInExButton.IsEnabled = true;
+
+			this.UpdateSetupBepInExButtonStatus();
+
+			this.UpdateRemoveBepInExButtonStatus();
 		}
 
 		private async Task UpdateBepInExLatestReleaseDownloadUri()
@@ -201,6 +283,35 @@ namespace PC_Creator_Mod_Launcher
 					break;
 				}
 			}
+		}
+
+		private bool IsBepInExAlreadySetup()
+		{
+			string gameExecutableParentDirectoryAbsolutePath = new FileInfo(
+				MainWindow.instance.mainConfig.gameExecutablePath
+			).Directory.FullName;
+
+			if (Directory.Exists(Path.Combine(gameExecutableParentDirectoryAbsolutePath, "BepInEx")) == false)
+			{
+				return false;
+			}
+
+			if (File.Exists(Path.Combine(gameExecutableParentDirectoryAbsolutePath, "changelog.txt")) == false)
+			{
+				return false;
+			}
+
+			if (File.Exists(Path.Combine(gameExecutableParentDirectoryAbsolutePath, "doorstop_config.ini")) == false)
+			{
+				return false;
+			}
+
+			if (File.Exists(Path.Combine(gameExecutableParentDirectoryAbsolutePath, "winhttp.dll")) == false)
+			{
+				return false;
+			}
+
+			return true;			
 		}
 
 		public SettingsPage()

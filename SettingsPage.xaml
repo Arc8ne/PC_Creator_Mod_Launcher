@@ -54,7 +54,7 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Path to PC Creator game executable:</TextBlock>
 
-                <TextBox Name="GameExecutablePathTextBox" Grid.Row="0" Grid.Column="2" Padding="4,4,4,4" Foreground="Black" BorderThickness="2" BorderBrush="DimGray"></TextBox>
+                <TextBox Name="GameExecutablePathTextBox" Grid.Row="0" Grid.Column="2" IsReadOnly="True" Padding="4,4,4,4" Foreground="Black" BorderThickness="2" BorderBrush="DimGray"></TextBox>
 
                 <ui:Button Name="OpenFileDialogButton" Grid.Row="0" Grid.Column="4" Icon="MoreHorizontal32" IconForeground="Black" Padding="6 2 6 0" BorderBrush="DimGray" BorderThickness="2"></ui:Button>
             </Grid>
