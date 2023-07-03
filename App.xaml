@@ -1,7 +1,7 @@
-﻿<Application x:Class="PC_Creator_Modloader.App"
+﻿<Application x:Class="PC_Creator_Mod_Launcher.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:PC_Creator_Modloader"
+             xmlns:local="clr-namespace:PC_Creator_Mod_Launcher"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              StartupUri="MainWindow.xaml"
              >

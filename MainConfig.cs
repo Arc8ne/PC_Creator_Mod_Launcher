@@ -3,11 +3,11 @@ using System.IO;
 using System.Windows;
 using Newtonsoft.Json;
 
-namespace PC_Creator_Modloader
+namespace PC_Creator_Mod_Launcher
 {
 	public class MainConfig
 	{
-		private const string defaultMainConfigFileName = "pc_creator_modloader_config.json";
+		private const string defaultMainConfigFileName = "pc_creator_mod_launcher_config.json";
 
 		private const string defaultMainConfigFileRelativeFilePath = "/" + defaultMainConfigFileName;
 

@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace PC_Creator_Modloader
+namespace PC_Creator_Mod_Launcher
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml

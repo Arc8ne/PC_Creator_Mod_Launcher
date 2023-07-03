@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.IO.Compression;
 
-namespace PC_Creator_Modloader
+namespace PC_Creator_Mod_Launcher
 {
 	/// <summary>
 	/// Interaction logic for SettingsPage.xaml
@@ -36,7 +36,7 @@ namespace PC_Creator_Modloader
 		private Uri bepInExLatestReleaseDownloadUri = null;
 
 		private GitHubClient gitHubClient = new GitHubClient(
-			new ProductHeaderValue("pc-creator-modloader")
+			new ProductHeaderValue("pc-creator-mod-launcher")
 		);
 
 		private void OnSettingsPageLoaded(object sender, RoutedEventArgs e)

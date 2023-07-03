@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace PC_Creator_Modloader
+namespace PC_Creator_Mod_Launcher
 {
 	/// <summary>
 	/// Interaction logic for App.xaml
