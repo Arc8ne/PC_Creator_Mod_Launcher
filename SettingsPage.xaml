@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="PC_Creator_Modloader.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PC_Creator_Modloader"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             Height="auto" Width="auto"
+             FontFamily="Segoe UI" FontWeight="SemiBold"
+             Background="White">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+
+            <ColumnDefinition Width="auto"/>
+
+            <ColumnDefinition Width="10"/>
+
+            <ColumnDefinition Width="*"/>
+
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+
+            <RowDefinition Height="*"/>
+
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+
+        <ui:Button Name="ReturnToHomePageButton" Grid.Row="1" Grid.Column="1" IconForeground="Black" BorderBrush="DimGray" BorderThickness="2" FontSize="16" VerticalAlignment="Top" Icon="Home12"/>
+
+        <StackPanel Name="SettingsPageButtonsStackPanel" Grid.Row="1" Grid.Column="3" Orientation="Vertical">
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="14">Settings</TextBlock>
+
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+
+                    <ColumnDefinition Width="10"/>
+
+                    <ColumnDefinition Width="*"/>
+
+                    <ColumnDefinition Width="10"/>
+
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Path to PC Creator game executable:</TextBlock>
+
+                <TextBox Name="GameExecutablePathTextBox" Grid.Row="0" Grid.Column="2" Padding="4,4,4,4" Foreground="Black" BorderThickness="2" BorderBrush="DimGray"></TextBox>
+
+                <ui:Button Name="OpenFileDialogButton" Grid.Row="0" Grid.Column="4" Icon="MoreHorizontal32" IconForeground="Black" Padding="6 2 6 0" BorderBrush="DimGray" BorderThickness="2"></ui:Button>
+            </Grid>
+            
+            <ui:Button Name="SetupBepInExButton" Margin="0,10,0,0" Style="{StaticResource FluentUIBaseButtonTheme}">Setup BepInEx</ui:Button>
+
+            <ui:Button Name="RemoveBepInExButton" Margin="0,10,0,0" Style="{StaticResource FluentUIBaseButtonTheme}">Remove BepInEx</ui:Button>
+        </StackPanel>
+    </Grid>
+</UserControl>
