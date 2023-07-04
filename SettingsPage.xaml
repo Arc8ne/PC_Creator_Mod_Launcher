@@ -61,6 +61,8 @@
             
             <ui:Button Name="SetupBepInExButton" Margin="0,10,0,0" Style="{StaticResource FluentUIBaseButtonTheme}">Setup BepInEx</ui:Button>
 
+            <ui:Button Name="UpdateBepInExButton" Margin="0,10,0,0" Style="{StaticResource FluentUIBaseButtonTheme}">Update BepInEx to latest stable version</ui:Button>
+            
             <ui:Button Name="RemoveBepInExButton" Margin="0,10,0,0" Style="{StaticResource FluentUIBaseButtonTheme}">Remove BepInEx</ui:Button>
         </StackPanel>
     </Grid>

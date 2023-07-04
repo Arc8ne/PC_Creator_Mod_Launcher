@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.IO.Compression;
+using System.Diagnostics;
 
 namespace PC_Creator_Mod_Launcher
 {
@@ -39,6 +40,8 @@ namespace PC_Creator_Mod_Launcher
 			new ProductHeaderValue("pc-creator-mod-launcher")
 		);
 
+		private Button updateBepInExButton = null;
+
 		private void OnSettingsPageLoaded(object sender, RoutedEventArgs e)
 		{
 			if (this.firstLoadCompleted == false)
@@ -63,14 +66,16 @@ namespace PC_Creator_Mod_Launcher
 
 				this.removeBepInExButton.Click += this.OnRemoveBepInExButtonClick;
 
+				this.updateBepInExButton = (Button)this.FindName("UpdateBepInExButton");
+
+				this.updateBepInExButton.Click += this.OnUpdateBepInExButtonClick;
+
 				this.firstLoadCompleted = true;
 			}
 
 			this.gameExecutablePathTextBox.Text = MainWindow.instance.mainConfig.gameExecutablePath;
 
-			this.UpdateSetupBepInExButtonStatus();
-
-			this.UpdateRemoveBepInExButtonStatus();
+			this.OnBepInExSetupStatusChanged();
 		}
 
 		private void UpdateSetupBepInExButtonStatus()
@@ -115,9 +120,7 @@ namespace PC_Creator_Mod_Launcher
 		{
 			this.gameExecutablePathTextBox.Text = this.openFileDialog.FileName;
 
-			this.UpdateSetupBepInExButtonStatus();
-
-			this.UpdateRemoveBepInExButtonStatus();
+			this.OnBepInExSetupStatusChanged();
 		}
 
 		private void OnGameExecutablePathTextBoxTextChanged(object sender, RoutedEventArgs e)
@@ -190,9 +193,7 @@ namespace PC_Creator_Mod_Launcher
 
 			this.removeBepInExButton.Content = "Remove BepInEx";
 
-			this.UpdateSetupBepInExButtonStatus();
-
-			this.UpdateRemoveBepInExButtonStatus();
+			this.OnBepInExSetupStatusChanged();
 		}
 
 		private void OnWebClientDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
@@ -252,9 +253,7 @@ namespace PC_Creator_Mod_Launcher
 
 			this.removeBepInExButton.IsEnabled = true;
 
-			this.UpdateSetupBepInExButtonStatus();
-
-			this.UpdateRemoveBepInExButtonStatus();
+			this.OnBepInExSetupStatusChanged();
 		}
 
 		private async Task UpdateBepInExLatestReleaseDownloadUri()
@@ -312,6 +311,62 @@ namespace PC_Creator_Mod_Launcher
 			}
 
 			return true;			
+		}
+
+		private void OnUpdateBepInExButtonClick(object sender, RoutedEventArgs e)
+		{
+			if (this.IsBepInExLatestStableVersionInstalled() == true)
+			{
+				return;
+			}
+
+			this.OnBepInExSetupStatusChanged();
+		}
+
+		private void UpdateBepInExUpdateButtonStatus()
+		{
+			this.updateBepInExButton.IsEnabled = this.IsBepInExAlreadySetup();
+
+			if (this.updateBepInExButton.IsEnabled == true)
+			{
+				if (this.IsBepInExLatestStableVersionInstalled() == true)
+				{
+					this.updateBepInExButton.Content = "Your version of BepInEx is currently up to date.";
+				}
+				else
+				{
+					this.updateBepInExButton.Content = "Update BepInEx to latest stable version";
+				}
+			}
+			else
+			{
+				this.updateBepInExButton.Content = "BepInEx has not yet been set up at this path.";
+			}
+		}
+
+		private void OnBepInExSetupStatusChanged()
+		{
+			this.UpdateSetupBepInExButtonStatus();
+
+			this.UpdateRemoveBepInExButtonStatus();
+
+			this.UpdateBepInExUpdateButtonStatus();
+		}
+
+		private bool IsBepInExLatestStableVersionInstalled()
+		{
+			FileVersionInfo bepInExDllFileVersionInfo = FileVersionInfo.GetVersionInfo(
+				Path.Combine(
+					new FileInfo(MainWindow.instance.mainConfig.gameExecutablePath).Directory.FullName,
+					"BepInEx",
+					"core",
+					"BepInEx.dll"
+				)
+			);
+
+			MessageBox.Show(bepInExDllFileVersionInfo.FileVersion);
+
+			return false;
 		}
 
 		public SettingsPage()
