@@ -151,12 +151,8 @@ namespace PC_Creator_Mod_Launcher
 			);
 		}
 
-		private void OnRemoveBepInExButtonClick(object sender, RoutedEventArgs e)
+		private void RemoveBepInExFromGameExecutableDirectory()
 		{
-			this.removeBepInExButton.IsEnabled = false;
-
-			this.removeBepInExButton.Content = "Removing BepInEx. Please wait...";
-
 			string gameExecutableParentDirectoryAbsolutePath = new FileInfo(
 				MainWindow.instance.mainConfig.gameExecutablePath
 			).Directory.FullName;
@@ -188,12 +184,64 @@ namespace PC_Creator_Mod_Launcher
 			{
 				File.Delete(bepInExWinHttpDllFileAbsolutePath);
 			}
+		}
+
+		private void OnRemoveBepInExButtonClick(object sender, RoutedEventArgs e)
+		{
+			this.removeBepInExButton.IsEnabled = false;
+
+			this.removeBepInExButton.Content = "Removing BepInEx. Please wait...";
+
+			this.RemoveBepInExFromGameExecutableDirectory();
 
 			this.removeBepInExButton.IsEnabled = true;
 
 			this.removeBepInExButton.Content = "Remove BepInEx";
 
 			this.OnBepInExSetupStatusChanged();
+		}
+
+		/// <summary>
+		/// Downloads the latest stable version of BepInEx, places it in the mod
+		/// launcher's base directory, decompresses the folder, places the
+		/// decompressed folder in the mod launcher's base directory and then deletes the
+		/// compressed folder.
+		/// </summary>
+		/// <returns>
+		/// The DirectoryInfo object associated with the decompressed folder containing
+		/// the latest stable version of BepInEx.
+		/// </returns>
+		private DirectoryInfo DownloadAndDecompressBepInExLatestStableVersionInBaseDirectory()
+		{
+			string[] bepInExLatestReleaseDownloadUriStringComponents = this.bepInExLatestReleaseDownloadUri.OriginalString.Split('/');
+
+			string bepInExLatestReleaseZippedFileFullPath = Path.Combine(
+				MainWindow.instance.mainConfig.baseDirectoryPath,
+				bepInExLatestReleaseDownloadUriStringComponents[bepInExLatestReleaseDownloadUriStringComponents.Length - 1]
+			);
+
+			this.webClient.DownloadFile(
+				this.bepInExLatestReleaseDownloadUri,
+				bepInExLatestReleaseZippedFileFullPath
+			);
+
+			string bepInExLatestReleaseUnzippedFolderFullPath = Path.Combine(
+				MainWindow.instance.mainConfig.baseDirectoryPath,
+				"unzipped_" + bepInExLatestReleaseDownloadUriStringComponents[bepInExLatestReleaseDownloadUriStringComponents.Length - 1]
+			);
+
+			FileInfo gameExecutableFileInfo = new FileInfo(
+				MainWindow.instance.mainConfig.gameExecutablePath
+			);
+
+			Directory.CreateDirectory(bepInExLatestReleaseUnzippedFolderFullPath);
+
+			ZipFile.ExtractToDirectory(
+				bepInExLatestReleaseZippedFileFullPath,
+				bepInExLatestReleaseUnzippedFolderFullPath
+			);
+
+			return new DirectoryInfo(bepInExLatestReleaseUnzippedFolderFullPath);
 		}
 
 		private void OnWebClientDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
@@ -313,25 +361,67 @@ namespace PC_Creator_Mod_Launcher
 			return true;			
 		}
 
-		private void OnUpdateBepInExButtonClick(object sender, RoutedEventArgs e)
+		private async void OnUpdateBepInExButtonClick(object sender, RoutedEventArgs e)
 		{
-			if (this.IsBepInExLatestStableVersionInstalled() == true)
+			if (await this.IsBepInExLatestStableVersionInstalled() == true)
 			{
 				return;
 			}
 
+			this.updateBepInExButton.IsEnabled = false;
+
+			this.updateBepInExButton.Content = "Updating BepInEx to the latest stable version. Please wait...";
+
+			/*
+			Steps for updating BepInEx to latest version automatically:
+			1. Install latest version of BepInEx in base folder.
+			2. Move all folders in BepInEx folder in game executable parent
+			folder that are not named "core" to the folder of the latest version of
+			BepInEx that was installed in Step 1.
+			3. Delete BepInEx folder and its related files that are currently in the
+			game executable parent folder.
+			4. Move the folder and related files of the latest version of BepInEx that was
+			installed in Step 1 to the game executable parent folder.
+			*/
+			await this.UpdateBepInExLatestReleaseDownloadUri();
+
+			DirectoryInfo bepInExLatestStableVersionDecompressedDirectoryInfo = this.DownloadAndDecompressBepInExLatestStableVersionInBaseDirectory();
+
+			string gameExecutableBepInExDirectoryPath = Path.Combine(
+				new FileInfo(MainWindow.instance.mainConfig.gameExecutablePath).Directory.FullName,
+				"BepInEx"
+			);
+
+			foreach(string subDirectoryAbsolutePath in Directory.GetDirectories(gameExecutableBepInExDirectoryPath))
+			{
+				if (Path.GetDirectoryName(subDirectoryAbsolutePath) != "core")
+				{
+					Directory.Move(
+						subDirectoryAbsolutePath,
+						Path.Combine(
+							bepInExLatestStableVersionDecompressedDirectoryInfo.FullName,
+							"BepInEx"
+						)
+					);
+				}
+			}
+
+			this.RemoveBepInExFromGameExecutableDirectory();
+
 			this.OnBepInExSetupStatusChanged();
 		}
 
-		private void UpdateBepInExUpdateButtonStatus()
+		private async void UpdateBepInExUpdateButtonStatus()
 		{
 			this.updateBepInExButton.IsEnabled = this.IsBepInExAlreadySetup();
 
 			if (this.updateBepInExButton.IsEnabled == true)
 			{
-				if (this.IsBepInExLatestStableVersionInstalled() == true)
+				if (await this.IsBepInExLatestStableVersionInstalled() == true)
 				{
 					this.updateBepInExButton.Content = "Your version of BepInEx is currently up to date.";
+
+					this.updateBepInExButton.IsEnabled = false;
 				}
 				else
 				{
@@ -353,8 +443,12 @@ namespace PC_Creator_Mod_Launcher
 			this.UpdateBepInExUpdateButtonStatus();
 		}
 
-		private bool IsBepInExLatestStableVersionInstalled()
+		private async Task<bool> IsBepInExLatestStableVersionInstalled()
 		{
+			bool prevUpdateBepInExButtonIsEnabledValue = this.updateBepInExButton.IsEnabled;
+
+			this.updateBepInExButton.IsEnabled = false;
+
 			FileVersionInfo bepInExDllFileVersionInfo = FileVersionInfo.GetVersionInfo(
 				Path.Combine(
 					new FileInfo(MainWindow.instance.mainConfig.gameExecutablePath).Directory.FullName,
@@ -364,7 +458,24 @@ namespace PC_Creator_Mod_Launcher
 				)
 			);
 
-			MessageBox.Show(bepInExDllFileVersionInfo.FileVersion);
+			string bepInExDllFileVersion = $"{bepInExDllFileVersionInfo.FileMajorPart}.{bepInExDllFileVersionInfo.FileMinorPart}.{bepInExDllFileVersionInfo.FileBuildPart}";
+
+			foreach (Release bepInExRelease in await this.gitHubClient.Repository.Release.GetAll("BepInEx", "BepInEx"))
+			{
+				if (bepInExRelease.Prerelease == false)
+				{
+					if (bepInExDllFileVersion == bepInExRelease.TagName.Replace("v", ""))
+					{
+						this.updateBepInExButton.IsEnabled = prevUpdateBepInExButtonIsEnabledValue;
+
+						return true;
+					}
+
+					break;
+				}
+			}
+
+			this.updateBepInExButton.IsEnabled = prevUpdateBepInExButtonIsEnabledValue;
 
 			return false;
 		}
